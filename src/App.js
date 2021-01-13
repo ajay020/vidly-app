@@ -1,25 +1,50 @@
-import logo from './logo.svg';
+import React, { Component } from 'react';
+import {Redirect, Route, Switch} from 'react-router-dom';
+import {ToastContainer} from 'react-toastify';
+import Movie from './components/movie';
+import NavBar from './components/common/navbar';
+import Customrs from './components/customers';
+import Rentals from './components/rentals';
+import NotFound from './components/common/not-found';
+import MovieForm from './components/movieForm';
+import LoginForm from './components/loginForm';
+import RegisterForm from './components/registerForm';
+import Logout from './components/logout';
+import ProtectedRoute from './components/common/protectedRoute';
+import auth from './services/authService';
+import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component {
+  state ={}
+  componentDidMount() { 
+    const user = auth.getCurrentUser();
+    this.setState({user});
+  }
+  
+  render(){
+    const {user} = this.state;
+    return (
+      <div>
+        <ToastContainer />
+        <NavBar user = {user} />
+        <main className="container">
+          <Switch>
+            <Route path="/login" component={LoginForm} />
+            <Route path="/logout" component={Logout} />
+            <Route path="/register" component={RegisterForm} />
+            <ProtectedRoute path="/movies/:id" component={MovieForm}/>
+            <Route path="/movies" render={props => <Movie {...props} user =  {this.state.user}  />} />
+            <Route path="/customers" component={Customrs} />
+            <Route path="/rentals" component={Rentals} />
+            <Route path="/not-found" component={NotFound} />
+            <Redirect from='/' exact to="/movies" />
+            <Redirect to="/not-found" />
+          </Switch>
+        </main>
+      </div>
+    );
+  }
 }
 
 export default App;
